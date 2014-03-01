@@ -12,7 +12,9 @@ def trader_process(port_mapping, n_processes, id, asset):
 
     def send_message(dest_pid, message):
         sock = sockets[dest_pid]
-        sock.send(str(message).encode('utf'))
+        encoded_message = str(message).encode('utf')
+        sock.send(encoded_message)
+        sock.send(b' ')
 
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,7 +50,8 @@ def trader_process(port_mapping, n_processes, id, asset):
         # sending message
         buying_attempt = rand.uniform(0, 1)
         if buying_attempt <= buying_probability:
-            seller = rand.randint(0, n_processes - 1)
+            seller = rand.randint(0, n_processes - 2)
+
             if seller >= id:
                 seller = seller + 1
 
@@ -56,6 +59,5 @@ def trader_process(port_mapping, n_processes, id, asset):
             if current_money == 0:
                 pass
             else:
-                buying_amount = rand.randint(1, current_money)
+                buying_amount = rand.randint(1, int(current_money/3)+1)
                 send_message(seller, buying_amount)
-    pass
