@@ -11,9 +11,22 @@ def trader_process(port_mapping, n_processes, id, asset):
     sockets = []
     backlog = 10
 
+    types = {
+        'send_money': 0,
+        'send_widget': 1,
+    }
+    inv_types = {v:k for k, v in types.items()}
+
     def send_int_list(dest_pid, type, int_list):
         sock = sockets[dest_pid]
-        sock.sendall(struct.pack('!i', int_message))
+        message = ''
+        message = message + struct.pack('!i', type)
+        message = message + struct.pack('!i', len(int_list))
+
+        for item in int_list:
+            message = message + struct.pack('!i', item)
+
+        sock.sendall(message)
 
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,10 +52,11 @@ def trader_process(port_mapping, n_processes, id, asset):
         # receiving message
         for i in range(id):
             try:
-                byte_data = sockets[i].recv(4)
-                int_data = struct.unpack('!i', byte_data)[0]
+                byte_data =
+                type = struct.unpack('!i', byte_data)[0]
                 asset[1] = asset[1] + int_data
-                send_message(i, int_data)
+                num_widgets =
+                send_int_list(i, types['send_widget'], [buying_amount])
                 print(int_data)
             except socket.timeout:
                 pass
@@ -63,4 +77,4 @@ def trader_process(port_mapping, n_processes, id, asset):
             else:
                 buying_amount = rand.randint(1, int(current_money/3)+1)
                 asset[1] = asset[1] - buying_amount
-                send_int(seller, buying_amount)
+                send_int_list(seller, types['send_money'], [buying_amount])

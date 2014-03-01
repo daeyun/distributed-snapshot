@@ -4,4 +4,4 @@ def get_initial_trading_vars(rand):
     return (widgets, money)
 
 def unpack_list_data(struct_list):
-    pass
+    return []
