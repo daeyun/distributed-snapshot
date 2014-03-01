@@ -11,7 +11,7 @@ def trader_process(port_mapping, n_processes, id, asset):
     sockets = []
     backlog = 10
 
-    def send_int(dest_pid, int_message):
+    def send_int_list(dest_pid, type, int_list):
         sock = sockets[dest_pid]
         sock.sendall(struct.pack('!i', int_message))
 
@@ -41,6 +41,8 @@ def trader_process(port_mapping, n_processes, id, asset):
             try:
                 byte_data = sockets[i].recv(4)
                 int_data = struct.unpack('!i', byte_data)[0]
+                asset[1] = asset[1] + int_data
+                send_message(i, int_data)
                 print(int_data)
             except socket.timeout:
                 pass
@@ -60,4 +62,5 @@ def trader_process(port_mapping, n_processes, id, asset):
                 pass
             else:
                 buying_amount = rand.randint(1, int(current_money/3)+1)
+                asset[1] = asset[1] - buying_amount
                 send_int(seller, buying_amount)
