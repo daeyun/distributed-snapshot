@@ -8,14 +8,14 @@ def trader_process(port_mapping, n_processes, id):
 
     def send_message(dest_pid):
         sock = sockets[dest_pid]
-        sock.send(b'Send from %d to %d' % (id, dest_pid))
+        sock.send(b'hi')
 
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_sock.bind((socket.gethostname(), port_mapping[(i, id)][1]))
         server_sock.listen(backlog)
         client_sock, (host, client_port) = server_sock.accept()
-        sockets.append(server_sock)
+        sockets.append(client_sock)
 
     sockets.append(None)
 
@@ -31,7 +31,7 @@ def trader_process(port_mapping, n_processes, id):
         send_message(i)
 
     for i in range(id):
-        sockets[i].settimeout(0.0)
+        sockets[i].settimeout(0.01)
 
     while True:
         for i in range(id):
@@ -39,5 +39,7 @@ def trader_process(port_mapping, n_processes, id):
                 data = sockets[i].recv(1024)
                 print(data)
             except socket.timeout:
+                pass
+            except BlockingIOError:
                 pass
     pass
