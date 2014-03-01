@@ -13,10 +13,17 @@ def run():
 
     processes = []
     n_processes = 5
-    ports = pick_free_ports(n_processes)
+    ports = pick_free_ports(n_processes * (n_processes - 1))
+
+    port_mapping = {}
+    counter = 0
+    for i in range(n_processes):
+        for j in range(i + 1, n_processes):
+            port_mapping[(i, j)] = (ports[counter], ports[counter + 1])
+            counter = counter + 2
 
     for i in range(n_processes):
-        p = mp.Process(target=trader_process, args=(ports, i))
+        p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i))
         p.start()
         processes.append(p)
 
