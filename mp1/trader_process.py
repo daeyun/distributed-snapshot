@@ -8,7 +8,7 @@ def trader_process(port_mapping, n_processes, id):
 
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server_sock.bind(socket.gethostname(), port_mapping[(i, id)][1])
+        server_sock.bind((socket.gethostname(), port_mapping[(i, id)][1]))
         server_sock.listen(backlog)
         client_sock, (host, client_port) = server_sock.accept()
         sockets.append(server_sock)
