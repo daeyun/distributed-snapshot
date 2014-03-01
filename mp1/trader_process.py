@@ -44,33 +44,43 @@ def trader_process(port_mapping, n_processes, id, asset):
         client_sock.connect((addr, destination_port))
         sockets.append(client_sock)
 
-    for i in range(id):
+    for i in range(n_processes):
+        if i == id:
+            continue
+
         sockets[i].settimeout(0.01)
 
     while True:
         # receiving message
-        for i in range(id):
+        for i in range(n_processes):
+            if i == id:
+                continue
+
             try:
-                type = struct.unpack('!i', sockets[i].recv[4])[0]
-                if inv_types(type) == 'send_money':
-                    num_items = struct.unpack('!i', sockets[i].recv[4])[0]
-                    int_list = unpack_list_data(sockets[i].recv[num_items * 4])
+                data = sockets[i].recv(4)
+                if len(data) == 0:
+                    continue
+
+                type = struct.unpack('!i', data)[0]
+                if inv_types[type] == 'send_money':
+                    num_items = struct.unpack('!i', sockets[i].recv(4))[0]
+                    int_list = unpack_list_data(sockets[i].recv(num_items * 4))
 
                     money_received = int_list[0]
                     asset[1] = asset[1] + money_received
 
-                    print(id, 'received $', money_received, ' from process ', i)
+                    print(id, 'received $', money_received, ' from process ', i, asset)
 
-                    widgets_sending = buying_amount # assuming 1 widget costs 1 money
+                    widgets_sending = money_received # assuming 1 widget costs 1 money
                     send_int_list(i, types['send_widget'], [widgets_sending])
-                elif inv_types(type) == 'send_widget':
-                    num_items = struct.unpack('!i', sockets[i].recv[4])[0]
-                    int_list = unpack_list_data(sockets[i].recv[num_items * 4])
+                elif inv_types[type] == 'send_widget':
+                    num_items = struct.unpack('!i', sockets[i].recv(4))[0]
+                    int_list = unpack_list_data(sockets[i].recv(num_items * 4))
 
                     widgets_received = int_list[0]
                     asset[0] = asset[0] + widgets_received
 
-                    print('Received ', widgets_received, ' widgets from process ', i)
+                    print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
@@ -83,6 +93,8 @@ def trader_process(port_mapping, n_processes, id, asset):
         # sending message
         buying_attempt = rand.uniform(0, 1)
         if buying_attempt <= buying_probability:
+
+
             seller = rand.randint(0, n_processes - 2)
 
             if seller >= id:

@@ -17,7 +17,7 @@ def run():
     rand.seed(0)
 
     processes = []
-    n_processes = 5
+    n_processes = 2
     ports = pick_free_ports(n_processes * (n_processes - 1))
 
     port_mapping = {}
