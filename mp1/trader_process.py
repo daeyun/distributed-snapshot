@@ -1,5 +1,6 @@
 import socket
 import random
+import struct
 from mp1.mp1.main import logger
 
 def trader_process(port_mapping, n_processes, id, asset):
@@ -10,11 +11,9 @@ def trader_process(port_mapping, n_processes, id, asset):
     sockets = []
     backlog = 10
 
-    def send_message(dest_pid, message):
+    def send_int(dest_pid, int_message):
         sock = sockets[dest_pid]
-        encoded_message = str(message).encode('utf')
-        sock.send(encoded_message)
-        sock.send(b' ')
+        sock.sendall(struct.pack('!i', int_message))
 
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,8 +39,9 @@ def trader_process(port_mapping, n_processes, id, asset):
         # receiving message
         for i in range(id):
             try:
-                data = sockets[i].recv(1024)
-                print(data)
+                byte_data = sockets[i].recv(4)
+                int_data = struct.unpack('!i', byte_data)[0]
+                print(int_data)
             except socket.timeout:
                 pass
             except BlockingIOError:
@@ -60,4 +60,4 @@ def trader_process(port_mapping, n_processes, id, asset):
                 pass
             else:
                 buying_amount = rand.randint(1, int(current_money/3)+1)
-                send_message(seller, buying_amount)
+                send_int(seller, buying_amount)
