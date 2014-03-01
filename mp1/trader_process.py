@@ -6,6 +6,10 @@ def trader_process(port_mapping, n_processes, id):
     sockets = []
     backlog = 10
 
+    def send_message(dest_pid):
+        sock = sockets[dest_pid]
+        sock.send(b'Send from %d to %d' % (id, dest_pid))
+
     for i in range(id):
         server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server_sock.bind((socket.gethostname(), port_mapping[(i, id)][1]))
@@ -23,4 +27,17 @@ def trader_process(port_mapping, n_processes, id):
         client_sock.connect((addr, destination_port))
         sockets.append(client_sock)
 
+    for i in range(id + 1, n_processes):
+        send_message(i)
+
+    for i in range(id):
+        sockets[i].settimeout(0.0)
+
+    while True:
+        for i in range(id):
+            try:
+                data = sockets[i].recv(1024)
+                print(data)
+            except socket.timeout:
+                pass
     pass
