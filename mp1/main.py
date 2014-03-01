@@ -2,14 +2,19 @@
 import logging
 import sys
 import multiprocessing as mp
+import random
 from helpers.networking_helper import pick_free_ports
 from trader_process import *
+from mp1.mp1.helpers.trading_helper import get_initial_trading_vars
 
 logger = logging.getLogger()
 
 
 def run():
     logger.info("Master process started")
+
+    rand = random.Random()
+    rand.seed(0)
 
     processes = []
     n_processes = 5
@@ -23,7 +28,8 @@ def run():
             counter = counter + 2
 
     for i in range(n_processes):
-        p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i))
+        asset = get_initial_trading_vars(rand)
+        p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i, asset))
         p.start()
         processes.append(p)
 

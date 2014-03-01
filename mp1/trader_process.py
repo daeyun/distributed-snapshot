@@ -1,8 +1,11 @@
 import socket
+import random
 from mp1.mp1.main import logger
 
-def trader_process(port_mapping, n_processes, id):
-    # logger.info("Process id: ", id)
+def trader_process(port_mapping, n_processes, id, asset):
+    rand = random.Random
+    rand.seed(id)
+
     sockets = []
     backlog = 10
 
