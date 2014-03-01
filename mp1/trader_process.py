@@ -1,6 +1,7 @@
 import socket
 import random
 import struct
+from mp1.mp1.helpers.trading_helper import unpack_list_data
 from mp1.mp1.main import logger
 
 def trader_process(port_mapping, n_processes, id, asset):
@@ -19,9 +20,7 @@ def trader_process(port_mapping, n_processes, id, asset):
 
     def send_int_list(dest_pid, type, int_list):
         sock = sockets[dest_pid]
-        message = ''
-        message = message + struct.pack('!i', type)
-        message = message + struct.pack('!i', len(int_list))
+        message = struct.pack('!i', type) + struct.pack('!i', len(int_list))
 
         for item in int_list:
             message = message + struct.pack('!i', item)
@@ -52,12 +51,30 @@ def trader_process(port_mapping, n_processes, id, asset):
         # receiving message
         for i in range(id):
             try:
-                byte_data =
-                type = struct.unpack('!i', byte_data)[0]
-                asset[1] = asset[1] + int_data
-                num_widgets =
-                send_int_list(i, types['send_widget'], [buying_amount])
-                print(int_data)
+                type = struct.unpack('!i', sockets[i].recv[4])[0]
+                if inv_types(type) == 'send_money':
+                    num_items = struct.unpack('!i', sockets[i].recv[4])[0]
+                    int_list = unpack_list_data(sockets[i].recv[num_items * 4])
+
+                    money_received = int_list[0]
+                    asset[1] = asset[1] + money_received
+
+                    print(id, 'received $', money_received, ' from process ', i)
+
+                    widgets_sending = buying_amount # assuming 1 widget costs 1 money
+                    send_int_list(i, types['send_widget'], [widgets_sending])
+                elif inv_types(type) == 'send_widget':
+                    num_items = struct.unpack('!i', sockets[i].recv[4])[0]
+                    int_list = unpack_list_data(sockets[i].recv[num_items * 4])
+
+                    widgets_received = int_list[0]
+                    asset[0] = asset[0] + widgets_received
+
+                    print('Received ', widgets_received, ' widgets from process ', i)
+                else:
+                    print("Unknown type error")
+                    raise Exception("Unknown type error")
+
             except socket.timeout:
                 pass
             except BlockingIOError:
