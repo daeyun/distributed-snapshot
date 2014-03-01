@@ -10,7 +10,7 @@ from mp1.mp1.helpers.trading_helper import unpack_list_data
 class TestTradingHelpers(TestCase):
     def test_unpack_list_data(self):
 
-        packed_int_list = ''
+        packed_int_list = b''
         num = 7
         for i in range(num):
             packed_int_list = packed_int_list + struct.pack('!i', i)
