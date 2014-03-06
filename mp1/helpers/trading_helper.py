@@ -1,4 +1,5 @@
 import struct
+import math
 
 def get_initial_trading_vars(rand):
     widgets = rand.randint(100, 400)
@@ -13,3 +14,11 @@ def unpack_list_data(struct_list):
 
     return int_list
 
+def update_logical_timestamp(local_timestamp, received_timestamp):
+    return max(local_timestamp, received_timestamp) + 1
+
+def update_vector_timestamp(local_timestamp, received_timestamp):
+    new_timestamp = [0] * len(local_timestamp)
+    for i in range(len(local_timestamp)):
+        new_timestamp[i] = max(local_timestamp[i], received_timestamp[i])
+    return new_timestamp
