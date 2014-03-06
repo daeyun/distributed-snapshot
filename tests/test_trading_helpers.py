@@ -23,6 +23,4 @@ class TestTradingHelpers(TestCase):
         for i in range(num):
             self.assertEqual(unpacked_list[i], int_list[i])
 
-    def test_interpret_int_list(self):
-
 
