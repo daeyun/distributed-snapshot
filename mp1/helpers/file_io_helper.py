@@ -10,7 +10,7 @@ def save_snapshot(pid, snapshot_id, channels, state):
     )
 
     for channel_id, channel_data in enumerate(channels):
-        for entry in channel_data:
+        for entry in channel_data['data']:
             type = entry[0]
 
             asset_type = ''
