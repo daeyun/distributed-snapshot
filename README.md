@@ -15,8 +15,6 @@ invariants accordingly.
 
 ./bin/mp1 [number of processes] [number of snapshots]
 
-
-
 Requirement: python3
 
 Execute `mp1` in ./bin folder. For example,
