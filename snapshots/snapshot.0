@@ -1,0 +1,8 @@
+id 0 : snapshot 0 : logical 60 : vector 45 21 25 22 15 : money 504 : widgets 310
+id 0 : snapshot 1 : logical 176 : vector 109 80 98 72 76 : money 554 : widgets 280
+id 0 : snapshot 1 : logical 175 : vector 103 80 99 72 74 : message 2 to 0 : money 503
+id 0 : snapshot 2 : logical 296 : vector 173 146 165 136 143 : money 1263 : widgets 203
+id 0 : snapshot 3 : logical 395 : vector 223 201 229 194 196 : money 312 : widgets 86
+id 0 : snapshot 3 : logical 394 : vector 219 201 231 194 196 : message 2 to 0 : money 7
+id 0 : snapshot 4 : logical 498 : vector 283 260 296 249 243 : money 686 : widgets 52
+id 0 : snapshot 4 : logical 497 : vector 275 260 296 249 244 : message 4 to 0 : money 85
