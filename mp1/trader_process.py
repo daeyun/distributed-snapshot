@@ -41,6 +41,8 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
             sock.sendall(message)
         except ConnectionAbortedError:
             pass
+        except ConnectionResetError:
+            pass
 
     # initialize sockets
     for i in range(id):

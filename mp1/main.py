@@ -28,11 +28,17 @@ def run():
             counter = counter + 2
 
     num_snapshots = 5
+    widget = 0
+    money = 0
     for i in range(n_processes):
         asset = get_initial_trading_vars(rand)
+        widget = widget + asset[0]
+        money = money + asset[1]
         p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i, asset, num_snapshots))
         p.start()
         processes.append(p)
+
+    print("Widget: ", widget, "Money: ", money)
 
     for p in processes:
         p.join()
