@@ -16,6 +16,7 @@ def save_snapshot_state(pid, snapshot_id, state):
         f.write(content)
 
 def save_snapshot_channel(pid, snapshot_id, channel, channel_id):
+    content = ''
     for entry in channel['data']:
         type = entry[0]
 
@@ -24,7 +25,6 @@ def save_snapshot_channel(pid, snapshot_id, channel, channel_id):
             asset_type = 'widget'
         else:
             asset_type = 'money'
-
 
         amount = entry[1]
         logical_timestamp = entry[2]

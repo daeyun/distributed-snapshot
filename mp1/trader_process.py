@@ -125,8 +125,8 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                 elif inv_types[type] == 'marker':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     snapshot_id_received = unpack_list_data(sockets[i].recv(num_items * 4))[0]
-
                     if marker_received[snapshot_id_received] == False:
+                        print("happening?")
                         marker_received[snapshot_id_received] = True
                         save_snapshot_state(id, snapshot_id_received, (logical_timestamp, vector_timestamp, asset))
                         for j in range(n_processes):
@@ -136,7 +136,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     else:
                         if channels[snapshot_id_received][i]['is_recording']:
                             channels[snapshot_id_received][i]['is_recording'] = False
-                            save_snapshot_channel(id, snapshot_id_received, channels[snapshot_id_received], i)
+                            save_snapshot_channel(id, snapshot_id_received, channels[snapshot_id_received][i], i)
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
