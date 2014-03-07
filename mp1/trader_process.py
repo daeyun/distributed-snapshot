@@ -24,7 +24,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     logical_timestamp = 0
     vector_timestamp = [0] * n_processes
 
-    marker_received = [False] * n_processes
+    marker_received = [False] * num_snapshots
     channels = [[{'data':[], 'is_recording': False} for i in range(n_processes)] for j in range(num_snapshots)]
 
     # send a message to process dest_pid
@@ -121,7 +121,9 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
                     print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
                 elif inv_types[type] == 'marker':
-                    snapshot_id_received = struct.unpack('!i', sockets[i].recv(4))[0]
+                    num_items = struct.unpack('!i', sockets[i].recv(4))[0]
+                    snapshot_id_received = unpack_list_data(sockets[i].recv(num_items * 4))[0]
+
                     if marker_received[snapshot_id_received] == False:
                         marker_received[snapshot_id_received] = True
                         for j in range(n_processes):
@@ -158,7 +160,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     asset[1] = asset[1] - buying_amount
                     logical_timestamp = logical_timestamp + 1
                     vector_timestamp[id] = vector_timestamp[id] + 1
-                    print(id, ' send money ', logical_timestamp, ' ', vector_timestamp)
                     send_int_list(seller, types['send_money'], [buying_amount, logical_timestamp] + vector_timestamp)
             else:
                 # send widget
@@ -170,7 +171,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     asset[0] = asset[0] - buying_amount
                     logical_timestamp = logical_timestamp + 1
                     vector_timestamp[id] = vector_timestamp[id] + 1
-                    print(id, ' send widget ', logical_timestamp, ' ', vector_timestamp)
                     send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
 
         if id == 0 and counter == 49:
