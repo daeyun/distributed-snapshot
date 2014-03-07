@@ -6,7 +6,7 @@ from mp1.mp1.helpers.trading_helper import update_logical_timestamp
 from mp1.mp1.helpers.trading_helper import update_vector_timestamp
 from mp1.mp1.main import logger
 
-def trader_process(port_mapping, n_processes, id, asset):
+def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     rand = random.Random()
     rand.seed(id)
     sending_probability = rand.uniform(0.005, 0.05)
@@ -17,11 +17,15 @@ def trader_process(port_mapping, n_processes, id, asset):
     types = {
         'send_money': 0,
         'send_widget': 1,
+        'marker': 2,
     }
     inv_types = {v:k for k, v in types.items()}
 
     logical_timestamp = 0
     vector_timestamp = [0] * n_processes
+
+    marker_received = [False] * n_processes
+    channels = [[{'data':[], 'is_recording': False} for i in range(n_processes)] for j in range(num_snapshots)]
 
     # send a message to process dest_pid
     def send_int_list(dest_pid, type, int_list):
@@ -58,6 +62,8 @@ def trader_process(port_mapping, n_processes, id, asset):
         sockets[i].settimeout(0.01)
 
     # main logic loop
+    counter = 0
+    snapshot_id = 0
     while True:
         # receiving money (sending widgets)
         for i in range(n_processes):
@@ -78,6 +84,10 @@ def trader_process(port_mapping, n_processes, id, asset):
                     logical_timestamp_received = int_list[1]
                     vector_timestamp_received = int_list[2:]
 
+                    for j in range(len(channels)):
+                        if channels[j][i]['is_recording']:
+                            channels[j][i]['data'].append(int_list)
+
                     # update timestamps
                     logical_timestamp = update_logical_timestamp(logical_timestamp, logical_timestamp_received)
                     vector_timestamp[id] = vector_timestamp[id] + 1
@@ -96,6 +106,10 @@ def trader_process(port_mapping, n_processes, id, asset):
                     logical_timestamp_received = int_list[1]
                     vector_timestamp_received = int_list[2:]
 
+                    for j in range(len(channels)):
+                        if channels[j][i]['is_recording']:
+                            channels[j][i]['data'].append(int_list)
+
                     # update timestamps
                     logical_timestamp = update_logical_timestamp(logical_timestamp, logical_timestamp_received)
                     vector_timestamp[id] = vector_timestamp[id] + 1
@@ -106,6 +120,17 @@ def trader_process(port_mapping, n_processes, id, asset):
 
                     print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
                     print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
+                elif inv_types[type] == 'marker':
+                    snapshot_id_received = struct.unpack('!i', sockets[i].recv(4))[0]
+                    if marker_received[snapshot_id_received] == False:
+                        marker_received[snapshot_id_received] = True
+                        for j in range(n_processes):
+                            if j != id:
+                                channels[snapshot_id_received][j]['is_recording'] = True
+                                send_int_list(j, types['marker'], [snapshot_id_received])
+                    else:
+                        channels[snapshot_id_received][i]['is_recording'] = False
+
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
@@ -147,3 +172,10 @@ def trader_process(port_mapping, n_processes, id, asset):
                     vector_timestamp[id] = vector_timestamp[id] + 1
                     print(id, ' send widget ', logical_timestamp, ' ', vector_timestamp)
                     send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
+
+        if id == 0 and counter == 49:
+            for i in range(1, n_processes):
+                send_int_list(i, types['marker'], [snapshot_id])
+            snapshot_id = snapshot_id + 1
+
+        counter = (counter + 1) % 50

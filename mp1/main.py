@@ -27,9 +27,10 @@ def run():
             port_mapping[(i, j)] = (ports[counter], ports[counter + 1])
             counter = counter + 2
 
+    num_snapshots = 5
     for i in range(n_processes):
         asset = get_initial_trading_vars(rand)
-        p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i, asset))
+        p = mp.Process(target=trader_process, args=(port_mapping, n_processes, i, asset, num_snapshots))
         p.start()
         processes.append(p)
 
