@@ -98,8 +98,8 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     # update money
                     asset[1] = asset[1] + money_received
 
-                    print(id, 'received ', money_received, ' dollars from process ', i, asset)
-                    print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
+                    #print(id, 'received ', money_received, ' dollars from process ', i, asset)
+                    #print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
                 elif inv_types[type] == 'send_widget':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     int_list = unpack_list_data(sockets[i].recv(num_items * 4))
@@ -120,8 +120,8 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     # update widgets
                     asset[0] = asset[0] + widgets_received
 
-                    print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
-                    print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
+                    #print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
+                    #print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
                 elif inv_types[type] == 'marker':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     snapshot_id_received = unpack_list_data(sockets[i].recv(num_items * 4))[0]
@@ -134,10 +134,11 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                                 channels[snapshot_id_received][j]['is_recording'] = True
                                 send_int_list(j, types['marker'], [snapshot_id_received])
                     else:
-                        channels[snapshot_id_received][i]['is_recording'] = False
-                        save_snapshot(id, snapshot_id_received, channels[snapshot_id_received], (logical_timestamp, vector_timestamp, recorded_state[snapshot_id_received]))
-                        if snapshot_id_received == num_snapshots - 1:
-                            return
+                        if channels[snapshot_id_received][i]['is_recording']:
+                            channels[snapshot_id_received][i]['is_recording'] = False
+                            save_snapshot(id, snapshot_id_received, channels[snapshot_id_received], (logical_timestamp, vector_timestamp, recorded_state[snapshot_id_received]))
+                            if snapshot_id_received == num_snapshots - 1:
+                                return
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
