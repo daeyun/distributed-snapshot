@@ -1,6 +1,7 @@
 import socket
 import random
 import struct
+from mp1.mp1.helpers.file_io_helper import save_snapshot
 from mp1.mp1.helpers.trading_helper import unpack_list_data
 from mp1.mp1.helpers.trading_helper import update_logical_timestamp
 from mp1.mp1.helpers.trading_helper import update_vector_timestamp
@@ -132,7 +133,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                                 send_int_list(j, types['marker'], [snapshot_id_received])
                     else:
                         channels[snapshot_id_received][i]['is_recording'] = False
-
+                        save_snapshot(id, snapshot_id_received, channels[snapshot_id_received], (logical_timestamp, vector_timestamp, asset))
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
