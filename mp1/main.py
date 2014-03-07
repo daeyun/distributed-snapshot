@@ -16,6 +16,8 @@ def run():
         print('Usage: {} [number of processes] [number of snapshots]'.format(sys.argv[0]))
         return
 
+    delete_snapshots()
+
     n_processes = int(sys.argv[1])
     num_snapshots = int(sys.argv[2])
 
@@ -50,7 +52,6 @@ def run():
         p.join()
 
 
-
 if __name__ == '__main__':
     logger.setLevel(logging.DEBUG)
     console_handler = logging.StreamHandler(sys.stdout)
@@ -60,7 +61,6 @@ if __name__ == '__main__':
     logger.addHandler(console_handler)
 
     try:
-        delete_snapshots()
         run()
     except:
         logger.exception("Unexpected error")
