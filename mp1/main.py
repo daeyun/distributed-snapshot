@@ -12,13 +12,19 @@ logger = logging.getLogger()
 
 
 def run():
+    if len(sys.argv) != 3:
+        print('Usage: {} [number of processes] [number of snapshots]'.format(sys.argv[0]))
+        return
+
+    n_processes = int(sys.argv[1])
+    num_snapshots = int(sys.argv[2])
+
     logger.info("Master process started")
 
     rand = random.Random()
     rand.seed(0)
 
     processes = []
-    n_processes = 5
     ports = pick_free_ports(n_processes * (n_processes - 1))
 
     port_mapping = {}
@@ -28,7 +34,6 @@ def run():
             port_mapping[(i, j)] = (ports[counter], ports[counter + 1])
             counter = counter + 2
 
-    num_snapshots = 5
     widget = 0
     money = 0
     for i in range(n_processes):
