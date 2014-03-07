@@ -186,7 +186,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
 
         if id == 0 and counter == 49:
-            print(snapshot_id)
             marker_received[snapshot_id] = True
             save_snapshot_state(id, snapshot_id, (logical_timestamp, vector_timestamp, asset))
             for i in range(1, n_processes):
