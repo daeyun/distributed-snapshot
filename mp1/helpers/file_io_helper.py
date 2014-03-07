@@ -36,6 +36,17 @@ def save_snapshot_channel(pid, snapshot_id, channel, channel_id):
             pid, snapshot_id, logical_timestamp, vector_timestamp_str, channel_id, pid, asset_type, amount
         )
 
-    filename = os.path.dirname(os.path.realpath(__file__)) + "/../../snapshots/snapshot." + str(pid)
+    snapshot_dir = os.path.dirname(os.path.realpath(__file__)) + "/../../snapshots/"
+    filename = snapshot_dir + "snapshot." + str(pid)
     with open(filename, "a") as f:
         f.write(content)
+
+def delete_snapshots():
+    snapshot_dir = os.path.dirname(os.path.realpath(__file__)) + "/../../snapshots/"
+    try:
+        file_list = [f for f in os.listdir(snapshot_dir) if f.startswith("snapshot.")]
+        for f in file_list:
+            os.remove(snapshot_dir + f)
+    except:
+        print("file IO exception")
+        pass

@@ -5,6 +5,7 @@ import multiprocessing as mp
 import random
 from helpers.networking_helper import pick_free_ports
 from trader_process import *
+from mp1.mp1.helpers.file_io_helper import delete_snapshots
 from mp1.mp1.helpers.trading_helper import get_initial_trading_vars
 
 logger = logging.getLogger()
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     logger.addHandler(console_handler)
 
     try:
+        delete_snapshots()
         run()
     except:
         logger.exception("Unexpected error")
