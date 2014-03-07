@@ -72,7 +72,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     snapshot_id = 0
     num_channels_recorded = 0
     while True:
-        # receiving money (sending widgets)
+        # receiving invariants
         for i in range(n_processes):
             if i == id:
                 continue
@@ -91,6 +91,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     logical_timestamp_received = int_list[1]
                     vector_timestamp_received = int_list[2:]
 
+                    # check if we are recording incoming channels, and record the contents of incoming channels
                     for j in range(len(channels)):
                         if channels[j][i]['is_recording']:
                             channels[j][i]['data'].append([type] + int_list)
@@ -102,9 +103,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
                     # update money
                     asset[1] = asset[1] + money_received
-
-                    #print(id, 'received ', money_received, ' dollars from process ', i, asset)
-                    #print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
                 elif inv_types[type] == 'send_widget':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     int_list = unpack_list_data(sockets[i].recv(num_items * 4))
@@ -113,6 +111,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     logical_timestamp_received = int_list[1]
                     vector_timestamp_received = int_list[2:]
 
+                    # check if we are recording incoming channels, and record the contents of incoming channels
                     for j in range(len(channels)):
                         if channels[j][i]['is_recording']:
                             channels[j][i]['data'].append([type] + int_list)
@@ -124,9 +123,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
                     # update widgets
                     asset[0] = asset[0] + widgets_received
-
-                    #print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
-                    #print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
                 elif inv_types[type] == 'marker':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     snapshot_id_received = unpack_list_data(sockets[i].recv(num_items * 4))[0]
@@ -158,7 +154,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
             except ConnectionResetError:
                 pass
 
-        # sending money (buying widgets)
+        # sending invariants
         buying_attempt = rand.uniform(0, 1)
         if buying_attempt <= sending_probability:
             seller = rand.randint(0, n_processes - 2)
