@@ -136,6 +136,8 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     else:
                         channels[snapshot_id_received][i]['is_recording'] = False
                         save_snapshot(id, snapshot_id_received, channels[snapshot_id_received], (logical_timestamp, vector_timestamp, recorded_state[snapshot_id_received]))
+                        if snapshot_id_received == num_snapshots - 1:
+                            return
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
