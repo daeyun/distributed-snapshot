@@ -1,3 +1,5 @@
+import os
+
 def save_snapshot(pid, snapshot_id, channels, state):
     """state is a tuple of (logical, vector, asset) where logical is an int,
     vector is a list, state is [widget, money]"""
@@ -30,6 +32,6 @@ def save_snapshot(pid, snapshot_id, channels, state):
                 pid, snapshot_id, logical_timestamp, vector_timestamp_str, channel_id, pid, asset_type, amount
             )
 
-    filename = "snapshot." + str(pid)
+    filename = os.path.dirname(os.path.realpath(__file__)) + "/../../snapshots/snapshot." + str(pid)
     with open(filename, "a") as f:
         f.write(content)
