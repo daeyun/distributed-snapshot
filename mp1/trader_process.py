@@ -11,7 +11,7 @@ from mp1.mp1.main import logger
 def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     rand = random.Random()
     rand.seed(id)
-    sending_probability = rand.uniform(0.005, 0.05)
+    sending_probability = rand.uniform(0.1, 0.2)
 
     sockets = []
     backlog = 10
@@ -126,7 +126,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     snapshot_id_received = unpack_list_data(sockets[i].recv(num_items * 4))[0]
                     if marker_received[snapshot_id_received] == False:
-                        print("happening?")
                         marker_received[snapshot_id_received] = True
                         save_snapshot_state(id, snapshot_id_received, (logical_timestamp, vector_timestamp, asset))
                         for j in range(n_processes):
