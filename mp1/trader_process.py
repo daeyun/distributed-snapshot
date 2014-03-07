@@ -86,7 +86,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
                     for j in range(len(channels)):
                         if channels[j][i]['is_recording']:
-                            channels[j][i]['data'].append(int_list)
+                            channels[j][i]['data'].append([type] + int_list)
 
                     # update timestamps
                     logical_timestamp = update_logical_timestamp(logical_timestamp, logical_timestamp_received)
@@ -108,7 +108,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
                     for j in range(len(channels)):
                         if channels[j][i]['is_recording']:
-                            channels[j][i]['data'].append(int_list)
+                            channels[j][i]['data'].append([type] + int_list)
 
                     # update timestamps
                     logical_timestamp = update_logical_timestamp(logical_timestamp, logical_timestamp_received)

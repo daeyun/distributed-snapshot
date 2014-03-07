@@ -1,0 +1,35 @@
+def save_snapshot(pid, snapshot_id, channels, state):
+    """state is a tuple of (logical, vector, asset) where logical is an int,
+    vector is a list, state is [widget, money]"""
+
+    logical = state[0]
+    vector = " ".join(str(i) for i in state[1])
+    asset = state[2]
+    content = "id {} : snapshot {} : logical {} : vector {} : money {} : widgets {}\n".format(
+        pid, snapshot_id, logical, vector, asset[1], asset[0]
+    )
+
+    for channel_id, channel_data in enumerate(channels):
+        for entry in channel_data:
+            type = entry[0]
+
+            asset_type = ''
+            if type == 'send_widget':
+                asset_type = 'widget'
+            else:
+                asset_type = 'money'
+
+
+            amount = entry[1]
+            logical_timestamp = entry[2]
+            vector_timestamp = entry[3:]
+
+            vector_timestamp_str = " ".join(str(i) for i in entry[3:])
+
+            content = content + "id {} : snapshot {} : logical {} : vector {} : message {} to {} : {} {}\n".format(
+                pid, snapshot_id, logical_timestamp, vector_timestamp_str, channel_id, pid, asset_type, amount
+            )
+
+    filename = "snapshot." + str(pid)
+    with open(filename, "a") as f:
+        f.write(content)
