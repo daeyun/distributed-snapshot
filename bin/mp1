@@ -2,8 +2,8 @@
 import os
 import sys
 
-sys.path.append(os.path.abspath('..'))
-import mp1.main as main
+sys.path.append(os.path.abspath('../mp1'))
+import main
 
 try:
     main.run()

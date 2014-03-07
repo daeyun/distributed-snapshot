@@ -1,12 +1,11 @@
 import socket
 import random
 import struct
-from mp1.mp1.helpers.file_io_helper import save_snapshot_channel
-from mp1.mp1.helpers.file_io_helper import save_snapshot_state
-from mp1.mp1.helpers.trading_helper import unpack_list_data
-from mp1.mp1.helpers.trading_helper import update_logical_timestamp
-from mp1.mp1.helpers.trading_helper import update_vector_timestamp
-from mp1.mp1.main import logger
+from helpers.file_io_helper import save_snapshot_channel
+from helpers.file_io_helper import save_snapshot_state
+from helpers.trading_helper import unpack_list_data
+from helpers.trading_helper import update_logical_timestamp
+from helpers.trading_helper import update_vector_timestamp
 
 def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     rand = random.Random()
