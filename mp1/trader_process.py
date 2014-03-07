@@ -1,7 +1,8 @@
 import socket
 import random
 import struct
-from mp1.mp1.helpers.file_io_helper import save_snapshot
+from mp1.mp1.helpers.file_io_helper import save_snapshot_channel
+from mp1.mp1.helpers.file_io_helper import save_snapshot_state
 from mp1.mp1.helpers.trading_helper import unpack_list_data
 from mp1.mp1.helpers.trading_helper import update_logical_timestamp
 from mp1.mp1.helpers.trading_helper import update_vector_timestamp
@@ -27,7 +28,6 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
     marker_received = [False] * num_snapshots
     channels = [[{'data':[], 'is_recording': False} for i in range(n_processes)] for j in range(num_snapshots)]
-    recorded_state = [None] * num_snapshots
 
     # send a message to process dest_pid
     def send_int_list(dest_pid, type, int_list):
@@ -128,7 +128,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
                     if marker_received[snapshot_id_received] == False:
                         marker_received[snapshot_id_received] = True
-                        recorded_state[snapshot_id_received] = [asset[0], asset[1]]
+                        save_snapshot_state(id, snapshot_id_received, (logical_timestamp, vector_timestamp, asset))
                         for j in range(n_processes):
                             if j != id:
                                 channels[snapshot_id_received][j]['is_recording'] = True
@@ -136,9 +136,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     else:
                         if channels[snapshot_id_received][i]['is_recording']:
                             channels[snapshot_id_received][i]['is_recording'] = False
-                            save_snapshot(id, snapshot_id_received, channels[snapshot_id_received], (logical_timestamp, vector_timestamp, recorded_state[snapshot_id_received]))
-                            if snapshot_id_received == num_snapshots - 1:
-                                return
+                            save_snapshot_channel(id, snapshot_id_received, channels[snapshot_id_received], i)
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
@@ -180,8 +178,9 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
 
         if id == 0 and counter == 49:
-            recorded_state[snapshot_id] = [asset[0], asset[1]]
+            print(snapshot_id)
             marker_received[snapshot_id] = True
+            save_snapshot_state(id, snapshot_id, (logical_timestamp, vector_timestamp, asset))
             for i in range(1, n_processes):
                 channels[snapshot_id][i]['is_recording'] = True
                 send_int_list(i, types['marker'], [snapshot_id])
