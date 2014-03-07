@@ -9,7 +9,7 @@ from mp1.mp1.main import logger
 def trader_process(port_mapping, n_processes, id, asset):
     rand = random.Random()
     rand.seed(id)
-    buying_probability = rand.uniform(0.01, 0.1)
+    sending_probability = rand.uniform(0.005, 0.05)
 
     sockets = []
     backlog = 10
@@ -86,7 +86,7 @@ def trader_process(port_mapping, n_processes, id, asset):
                     # update money
                     asset[1] = asset[1] + money_received
 
-                    # print(id, 'received $', money_received, ' from process ', i, asset)
+                    print(id, 'received ', money_received, ' dollars from process ', i, asset)
                     print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
                 elif inv_types[type] == 'send_widget':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
@@ -105,8 +105,7 @@ def trader_process(port_mapping, n_processes, id, asset):
                     asset[0] = asset[0] + widgets_received
 
                     print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
-
-                    # print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
+                    print(id, 'received ', widgets_received, ' widgets from process ', i, asset)
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
@@ -118,19 +117,33 @@ def trader_process(port_mapping, n_processes, id, asset):
 
         # sending money (buying widgets)
         buying_attempt = rand.uniform(0, 1)
-        if buying_attempt <= buying_probability:
+        if buying_attempt <= sending_probability:
             seller = rand.randint(0, n_processes - 2)
 
             if seller >= id:
                 seller = seller + 1
 
-            current_money = asset[1]
-            if current_money == 0:
-                pass
+            if rand.randint(0, 1) == 0:
+                # send money
+                current_money = asset[1]
+                if current_money <= 0:
+                    pass
+                else:
+                    buying_amount = rand.randint(1, int(current_money/3)+1)
+                    asset[1] = asset[1] - buying_amount
+                    logical_timestamp = logical_timestamp + 1
+                    vector_timestamp[id] = vector_timestamp[id] + 1
+                    print(id, ' send money ', logical_timestamp, ' ', vector_timestamp)
+                    send_int_list(seller, types['send_money'], [buying_amount, logical_timestamp] + vector_timestamp)
             else:
-                buying_amount = rand.randint(1, int(current_money/3)+1)
-                asset[1] = asset[1] - buying_amount
-                logical_timestamp = logical_timestamp + 1
-                vector_timestamp[id] = vector_timestamp[id] + 1
-                print(id, ' send ', logical_timestamp, ' ', vector_timestamp)
-                send_int_list(seller, types['send_money'], [buying_amount, logical_timestamp] + vector_timestamp)
+                # send widget
+                current_widget = asset[0]
+                if current_widget <= 0:
+                    pass
+                else:
+                    buying_amount = rand.randint(1, int(current_widget/3)+1)
+                    asset[0] = asset[0] - buying_amount
+                    logical_timestamp = logical_timestamp + 1
+                    vector_timestamp[id] = vector_timestamp[id] + 1
+                    print(id, ' send widget ', logical_timestamp, ' ', vector_timestamp)
+                    send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
