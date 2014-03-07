@@ -11,7 +11,7 @@ from mp1.mp1.main import logger
 def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     rand = random.Random()
     rand.seed(id)
-    sending_probability = rand.uniform(0.1, 0.2)
+    sending_probability = rand.uniform(0.4, 0.8)
 
     sockets = []
     backlog = 10
@@ -31,13 +31,16 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
 
     # send a message to process dest_pid
     def send_int_list(dest_pid, type, int_list):
-        sock = sockets[dest_pid]
-        message = struct.pack('!i', type) + struct.pack('!i', len(int_list))
+        try:
+            sock = sockets[dest_pid]
+            message = struct.pack('!i', type) + struct.pack('!i', len(int_list))
 
-        for item in int_list:
-            message = message + struct.pack('!i', item)
+            for item in int_list:
+                message = message + struct.pack('!i', item)
 
-        sock.sendall(message)
+            sock.sendall(message)
+        except ConnectionAbortedError:
+            pass
 
     # initialize sockets
     for i in range(id):
@@ -66,6 +69,7 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
     # main logic loop
     counter = 0
     snapshot_id = 0
+    num_channels_recorded = 0
     while True:
         # receiving money (sending widgets)
         for i in range(n_processes):
@@ -136,6 +140,10 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                         if channels[snapshot_id_received][i]['is_recording']:
                             channels[snapshot_id_received][i]['is_recording'] = False
                             save_snapshot_channel(id, snapshot_id_received, channels[snapshot_id_received][i], i)
+                            if snapshot_id_received == num_snapshots - 1:
+                                num_channels_recorded = num_channels_recorded + 1
+                            if (id == 0 and num_channels_recorded == n_processes - 1) or (id != 0 and num_channels_recorded == n_processes - 2):
+                                return
                 else:
                     print("Unknown type error")
                     raise Exception("Unknown type error")
@@ -143,6 +151,10 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
             except socket.timeout:
                 pass
             except BlockingIOError:
+                pass
+            except ConnectionAbortedError:
+                pass
+            except ConnectionResetError:
                 pass
 
         # sending money (buying widgets)
