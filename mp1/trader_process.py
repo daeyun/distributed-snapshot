@@ -177,9 +177,10 @@ def trader_process(port_mapping, n_processes, id, asset, num_snapshots):
                     send_int_list(seller, types['send_widget'], [buying_amount, logical_timestamp] + vector_timestamp)
 
         if id == 0 and counter == 49:
-            recorded_state[snapshot_id_received] = [asset[0], asset[1]]
+            recorded_state[snapshot_id] = [asset[0], asset[1]]
+            marker_received[snapshot_id] = True
             for i in range(1, n_processes):
-                channels[snapshot_id_received][j]['is_recording'] = True
+                channels[snapshot_id][i]['is_recording'] = True
                 send_int_list(i, types['marker'], [snapshot_id])
             snapshot_id = snapshot_id + 1
 
