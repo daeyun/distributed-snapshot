@@ -88,12 +88,6 @@ def trader_process(port_mapping, n_processes, id, asset):
 
                     # print(id, 'received $', money_received, ' from process ', i, asset)
                     print(id, ' received ', logical_timestamp, ' ', vector_timestamp)
-
-                    widgets_sending = money_received # assuming 1 widget costs 1 money
-                    logical_timestamp = logical_timestamp + 1
-                    vector_timestamp[id] = vector_timestamp[id] + 1
-
-                    send_int_list(i, types['send_widget'], [widgets_sending, logical_timestamp] + vector_timestamp)
                 elif inv_types[type] == 'send_widget':
                     num_items = struct.unpack('!i', sockets[i].recv(4))[0]
                     int_list = unpack_list_data(sockets[i].recv(num_items * 4))
