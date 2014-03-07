@@ -11,9 +11,7 @@ for filename in file_list:
         print('Usage: {} "snapshot 0"'.format(sys.argv[0]))
         exit()
 
-
     full_filename = current_dir + '/' + filename
-
     search_string = sys.argv[1]
 
     with open(full_filename) as f:
