@@ -2,8 +2,8 @@ import struct
 import math
 
 def get_initial_trading_vars(rand):
-    widgets = rand.randint(100, 400)
-    money = rand.randint(1200, 2500)
+    widgets = 200
+    money = 1000
     return [widgets, money]
 
 def unpack_list_data(struct_list):
